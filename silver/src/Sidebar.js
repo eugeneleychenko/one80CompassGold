@@ -21,7 +21,7 @@ const Sidebar = () => {
     const currentAlts = {};
 
     return(
-    <Grid container style={{ height: '100vh', width: '45%' }}>
+    <Grid container style={{ height: '100vh', width: '35%' }}>
     <Grid item style={{ width: '100%', backgroundColor: 'black', color: 'white', padding: '10px' }}>
       <h3>CUSTOM JOURNEY</h3>
       <Button style={{width: '90%'}} variant={topics.length === 0 ? "contained" : "outlined"} color="primary" onClick={handleNewTopic}>

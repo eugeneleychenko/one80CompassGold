@@ -1,11 +1,19 @@
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import { Grid, Box, TextField, Button, InputAdornment } from '@mui/material';
+import ChatContext from './ChatContext';
+
+
 
 export const ChatInput = () => {
     const [inputValue, setInputValue] = useState('');
+    const { sendMessage } = useContext(ChatContext);
 
-    const onSendClick = (value) => {
-        // Placeholder for send click functionality
+    const onSendClick = async () => {
+        if (!inputValue.trim()) return; // Prevent sending empty messages
+       
+        sendMessage({ text: inputValue, sender: 'user' });
+
+        setInputValue('');
     };
 
     return (
