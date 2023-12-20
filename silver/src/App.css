@@ -1,3 +1,5 @@
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@500;700&display=swap");
+
 .App {
   text-align: center;
 }
@@ -37,7 +39,6 @@
   }
 }
 
-
 .ChatInterface {
   flex-grow: 1; /* Takes up the remaining space */
 }
@@ -47,8 +48,6 @@
   display: flex;
   height: 100vh; /* Adjust the height as needed */
 }
-
-
 
 .ChatInput {
   position: absolute;

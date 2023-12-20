@@ -1,22 +1,20 @@
-import logo from './logo.svg';
-import './App.css';
-import Sidebar from './Sidebar';
-import ChatInterface from './ChatInterface';
+import logo from "./logo.svg";
+import "./App.css";
+import Sidebar from "./Sidebar";
+import ChatInterface from "./ChatInterface";
 // import { ChatInput } from './ChatInput';
-import Journey from './Journey';
-import { ChatProvider } from './ChatProvider';
+import { ChatProvider } from "./ChatProvider";
+import Journey from "./Journey";
 
 function App() {
   return (
-  <ChatProvider>
-
-    <div className="App">
-      {/* <Journey /> */}
-      <Sidebar />
-      <ChatInterface />
-   
-    </div>
-  </ChatProvider>
+    <ChatProvider>
+      <div className="App">
+        {/* <Sidebar />
+        <ChatInterface /> */}
+        <Journey />
+      </div>
+    </ChatProvider>
   );
 }
 
