@@ -7,6 +7,8 @@ import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
 import { ChatInput } from "./ChatInput";
 import ChatContext from "./ChatContext";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 // Placeholder functions
 const handleCreateJourneyClick = (methods) => {
@@ -22,30 +24,26 @@ const ChatInterface = () => {
   } = useContext(ChatContext);
   const [hasUserSentFirstMessage, setHasUserSentFirstMessage] = useState(false);
   const [hasFriendResponded, setHasFriendResponded] = useState(false);
-  // const [initialFriendDetails, setInitialFriendDetails] = useState(null);
 
+  // so Create a Journey appears once
   useEffect(() => {
     if (
-      hasFriendResponded &&
+      // hasFriendResponded &&
       messages.some((message) => message.sender === "friend")
     ) {
       setHasFriendResponded(true); // Set this to true after the first friend response
     }
   }, [messages]); // Depend on messages to trigger this effect
 
+  // runs fetchFriendResponse
   useEffect(() => {
-    if (
-      !hasUserSentFirstMessage &&
-      messages.some((message) => message.sender === "user")
-    ) {
-      const firstUserMessage = messages.find(
-        (message) => message.sender === "user"
-      );
-      fetchFriendResponse(firstUserMessage.text);
-      setHasUserSentFirstMessage(true); // Set this to true so it doesn't run again
+    const lastMessage = messages[messages.length - 1];
+    if (lastMessage && lastMessage.sender === "user") {
+      fetchFriendResponse(lastMessage.text);
     }
-  }, [hasUserSentFirstMessage, messages]); //
+  }, [messages]);
 
+  // Initial quesiton
   useEffect(() => {
     // Use the default message from ChatProvider's defaultMessages
     const defaultMessage = {
@@ -56,6 +54,7 @@ const ChatInterface = () => {
     // ... rest of your useEffect code
   }, []);
 
+  // Saves friend response array
   useEffect(() => {
     // Find the first message from 'friend' with details and save it
     if (!initialFriendDetails) {
@@ -70,32 +69,104 @@ const ChatInterface = () => {
   }, [messages, initialFriendDetails, setInitialFriendDetails]);
 
   const fetchFriendResponse = async (userInput) => {
+    let url;
+    let headers;
+    let body;
+
+    if (messages.filter((message) => message.sender === "friend").length > 1) {
+      // Use the new API for subsequent messages
+      url = "http://127.0.0.1:8000/stream_chat/";
+      headers = { "Content-Type": "application/json" };
+      body = JSON.stringify({ content: userInput });
+    } else {
+      // Use the original API for the first message
+      url = "https://one80-compass.vercel.app/find_closest_match";
+      headers = { "Content-Type": "application/json" };
+      body = JSON.stringify({ user_input: userInput });
+    }
+
     try {
-      const response = await fetch("http://0.0.0.0:8000/find_closest_match", {
+      const response = await fetch(url, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          user_input: userInput,
-        }),
+        headers: headers,
+        body: body,
       });
-      const data = await response.json();
-      if (data && data.closest_match) {
-        const friendMessage = {
-          text: data.closest_match,
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      if (
+        messages.filter((message) => message.sender === "friend").length > 1
+      ) {
+        // Handle the stream response for subsequent messages
+        const reader = response.body.getReader();
+        let friendMessageChunks = "";
+        let messageKey = Date.now(); // Create a unique key for the message
+        console.log("Stream reading initiated");
+
+        // Add an initial message to indicate loading
+        sendMessage({
           sender: "friend",
-          details: {
-            Methods: data.methods,
-            Alternatives: data.alternatives,
-            AI_responses: data.alternatives.map((alt) => {
-              return Object.values(alt)[0]["AI Response"];
-            }),
-          },
-        };
-        // console.log(friendMessage)
-        sendMessage(friendMessage);
-        // console.log(friendMessage);
+          text: "Loading...",
+          key: messageKey,
+        });
+
+        reader
+          .read()
+          .then(function processText({ done, value }) {
+            friendMessageChunks += new TextDecoder("utf-8").decode(value);
+            console.log("Received chunk: ", friendMessageChunks);
+            console.log(messages);
+            // Added console.log for debugging
+            // Update the existing message with the new chunk or the final content
+            // sendMessage(friendMessageChunks);
+            sendMessage((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.key === messageKey
+                  ? {
+                      ...msg,
+                      text: marked(friendMessageChunks),
+                    }
+                  : msg
+              )
+            );
+
+            if (!done) {
+              // Continue reading the next chunk
+              return reader.read().then(processText);
+            }
+          })
+          .catch((error) => {
+            console.error("Error sending message:", error);
+            let friendMessageText =
+              "Unable to send message. An error occurred.";
+            // Update the existing message to show the error instead of adding a new one
+            sendMessage((prevMessages) =>
+              prevMessages.map((msg) =>
+                msg.key === messageKey
+                  ? { ...msg, text: friendMessageText }
+                  : msg
+              )
+            );
+          });
+      } else {
+        // Handle the JSON response for the first message
+        const data = await response.json();
+        if (data && data.closest_match) {
+          const friendMessage = {
+            text: data.closest_match,
+            sender: "friend",
+            details: {
+              Methods: data.methods,
+              Alternatives: data.alternatives,
+              AI_responses: data.alternatives.map((alt) => {
+                return Object.values(alt)[0]["AI Response"];
+              }),
+            },
+          };
+          sendMessage(friendMessage);
+        }
       }
     } catch (error) {
       console.error("Failed to fetch friend response:", error);
@@ -155,7 +226,9 @@ const ChatInterface = () => {
                 </ListItem>
                 {message.sender === "friend" &&
                   message.details &&
-                  !hasFriendResponded && (
+                  messages
+                    .filter((msg) => msg.sender === "friend")
+                    .indexOf(message) === 1 && (
                     <ListItem sx={{ justifyContent: "flex-start" }}>
                       <Button
                         variant="contained"

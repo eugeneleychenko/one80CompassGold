@@ -10,9 +10,9 @@ function App() {
   return (
     <ChatProvider>
       <div className="App">
-        {/* <Sidebar />
-        <ChatInterface /> */}
-        <Journey />
+        <Sidebar />
+        <ChatInterface />
+        {/* <Journey /> */}
       </div>
     </ChatProvider>
   );
