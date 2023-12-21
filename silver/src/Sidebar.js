@@ -22,7 +22,7 @@ const Sidebar = () => {
   const currentAlts = {};
   const { initialFriendDetails } = useContext(ChatContext);
 
-  console.log(initialFriendDetails);
+  // console.log(initialFriendDetails);
 
   return (
     <Grid container style={{ height: "100vh", width: "35%" }}>

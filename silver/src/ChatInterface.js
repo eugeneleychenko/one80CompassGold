@@ -24,6 +24,7 @@ const ChatInterface = () => {
   } = useContext(ChatContext);
   const [hasUserSentFirstMessage, setHasUserSentFirstMessage] = useState(false);
   const [hasFriendResponded, setHasFriendResponded] = useState(false);
+  const [friendMessageChunks, setFriendMessageChunks] = useState("");
 
   // so Create a Journey appears once
   useEffect(() => {
@@ -33,6 +34,7 @@ const ChatInterface = () => {
     ) {
       setHasFriendResponded(true); // Set this to true after the first friend response
     }
+    console.log(messages);
   }, [messages]); // Depend on messages to trigger this effect
 
   // runs fetchFriendResponse
@@ -72,8 +74,12 @@ const ChatInterface = () => {
     let url;
     let headers;
     let body;
+    const friendMessagesCount = messages.filter(
+      (message) => message.sender === "friend"
+    ).length;
 
-    if (messages.filter((message) => message.sender === "friend").length > 1) {
+    // Determine the API endpoint and request body based on the number of friend messages
+    if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
       url = "http://127.0.0.1:8000/stream_chat/";
       headers = { "Content-Type": "application/json" };
@@ -96,59 +102,48 @@ const ChatInterface = () => {
         throw new Error(`HTTP error! status: ${response.status}`);
       }
 
-      if (
-        messages.filter((message) => message.sender === "friend").length > 1
-      ) {
-        // Handle the stream response for subsequent messages
+      // Check if the response is a ReadableStream and handle accordingly
+      if (response.body instanceof ReadableStream && friendMessagesCount > 1) {
         const reader = response.body.getReader();
-        let friendMessageChunks = "";
-        let messageKey = Date.now(); // Create a unique key for the message
-        console.log("Stream reading initiated");
-
-        // Add an initial message to indicate loading
-        sendMessage({
-          sender: "friend",
-          text: "Loading...",
-          key: messageKey,
-        });
+        let friendMessageText = ""; // Initialize the variable to hold the message text
 
         reader
           .read()
           .then(function processText({ done, value }) {
-            friendMessageChunks += new TextDecoder("utf-8").decode(value);
-            console.log("Received chunk: ", friendMessageChunks);
-            console.log(messages);
-            // Added console.log for debugging
-            // Update the existing message with the new chunk or the final content
-            // sendMessage(friendMessageChunks);
-            sendMessage((prevMessages) =>
-              prevMessages.map((msg) =>
-                msg.key === messageKey
-                  ? {
-                      ...msg,
-                      text: marked(friendMessageChunks),
-                    }
-                  : msg
-              )
-            );
+            if (value) {
+              const chunk = new TextDecoder("utf-8").decode(value);
+              friendMessageText += chunk; // Append the new chunk to the message text
+              setFriendMessageChunks(friendMessageText); // Update the state with the new text
+            }
 
             if (!done) {
               // Continue reading the next chunk
               return reader.read().then(processText);
+            } else {
+              // sendMessage((prevMessages) =>
+              //   prevMessages.map((msg) => {
+              //     console.log(msg); // This will log each message to the console
+              //     return msg.key === newMessage.key
+              //       ? {
+              //           ...msg,
+              //           text: friendMessageText,
+              //         }
+              //       : msg;
+              //   })
+              // );
+              // sendMessage(friendMessageText);
+              setFriendMessageChunks("");
+              const defaultMessage = {
+                text: friendMessageText,
+                sender: "friend",
+              };
+              sendMessage(defaultMessage);
             }
           })
           .catch((error) => {
             console.error("Error sending message:", error);
-            let friendMessageText =
-              "Unable to send message. An error occurred.";
-            // Update the existing message to show the error instead of adding a new one
-            sendMessage((prevMessages) =>
-              prevMessages.map((msg) =>
-                msg.key === messageKey
-                  ? { ...msg, text: friendMessageText }
-                  : msg
-              )
-            );
+            friendMessageText = "Unable to send message. An error occurred."; // Set error message
+            setFriendMessageChunks(friendMessageText); // Update the state with the error message
           });
       } else {
         // Handle the JSON response for the first message
@@ -217,10 +212,21 @@ const ChatInterface = () => {
                           </React.Fragment>
                         ))
                       ) : (
-                        <Typography variant="body1">{message.text}</Typography>
+                        <Typography
+                          variant="body1"
+                          dangerouslySetInnerHTML={{
+                            __html: DOMPurify.sanitize(marked(message.text)),
+                          }}
+                        />
                       )
                     ) : (
-                      <Typography variant="body1">{message.text}</Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{ p: 0 }}
+                        dangerouslySetInnerHTML={{
+                          __html: DOMPurify.sanitize(marked(message.text)),
+                        }}
+                      />
                     )}
                   </Paper>
                 </ListItem>
@@ -243,6 +249,28 @@ const ChatInterface = () => {
                   )}
               </React.Fragment>
             ))}
+            {/* Display the friend message chunks if they exist */}
+            {friendMessageChunks && (
+              <ListItem sx={{ justifyContent: "flex-start" }}>
+                <Paper
+                  elevation={3}
+                  sx={{
+                    padding: "10px",
+                    maxWidth: "75%",
+                    backgroundColor: "#fff",
+                    marginLeft: 0,
+                    marginRight: "auto",
+                  }}
+                >
+                  <Typography
+                    variant="body1"
+                    dangerouslySetInnerHTML={{
+                      __html: DOMPurify.sanitize(marked(friendMessageChunks)),
+                    }}
+                  />
+                </Paper>
+              </ListItem>
+            )}
           </List>
         </Grid>
         <Grid
