@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Box,
   Typography,
@@ -62,6 +62,17 @@ const methods = [
 const Journey = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [methodPosition, setMethodPosition] = useState({ top: 0, left: 0 });
+  const methodRefs = useRef([]);
+
+  useEffect(() => {
+    // After the component mounts, calculate the height of the placeholders
+    methodRefs.current.forEach((methodBox, index) => {
+      if (methodBox && methodBox.lastChild) {
+        const placeholderHeight = methodBox.lastChild.offsetHeight;
+        methodBox.style.marginBottom = `${placeholderHeight}px`;
+      }
+    });
+  }, []);
 
   const handleMethodClick = (method) => {
     setSelectedMethod(method);
@@ -180,6 +191,7 @@ const Journey = () => {
         {methods.map((method, index) => (
           <React.Fragment key={index}>
             <Box
+              ref={(el) => (methodRefs.current[index] = el)} // Assign ref to the method box
               sx={{
                 backgroundColor: "tan",
                 p: 2,
@@ -220,13 +232,14 @@ const Journey = () => {
               </Button>
             </Box>
 
-            <Box
+            {/* <Box
+              className="placeholder"
               sx={{
                 position: "absolute",
                 right: "10px",
                 top: "10px",
                 width: "100px",
-                height: "50px",
+                height: "550px",
                 bgcolor: "lightgrey",
                 display: "flex",
                 alignItems: "center",
@@ -235,9 +248,9 @@ const Journey = () => {
               }}
             >
               <Typography>Placeholder</Typography>
-            </Box>
+            </Box> */}
 
-            {/* <Box
+            <Box
               className="method-details"
               sx={{
                 position: "absolute",
@@ -298,7 +311,7 @@ const Journey = () => {
                   {method}
                 </Typography>
               ))}
-            </Box> */}
+            </Box>
 
             <Box
               sx={{
