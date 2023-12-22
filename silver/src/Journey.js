@@ -61,6 +61,7 @@ const methods = [
 
 const Journey = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
+  const [methodPosition, setMethodPosition] = useState({ top: 0, left: 0 });
 
   const handleMethodClick = (method) => {
     setSelectedMethod(method);
@@ -76,10 +77,10 @@ const Journey = () => {
 
   return (
     <Box
-      classname="menu"
+      className="menu"
       sx={{
         display: "flex",
-        width: "76%", // Set the parent container to full width
+        width: "93%", // Set the parent container to full width
         position: "relative", // Needed for absolute positioning context
         mt: "50px",
       }}
@@ -94,9 +95,10 @@ const Journey = () => {
           bgcolor: "black",
           color: "white",
           m: "0 10px",
+          "z-index": " 10000",
         }}
       >
-        <List>
+        <List className="List_Number">
           <ListItem button key="overview">
             <ListItemText primary="Overview" />
           </ListItem>
@@ -136,7 +138,7 @@ const Journey = () => {
         </List>
       </Box>
       <Box
-        classname="main"
+        className="main"
         sx={{
           display: "flex",
           flexDirection: "column",
@@ -144,8 +146,7 @@ const Journey = () => {
           minWidth: "300px",
           justifyContent: "flex-start",
           width: "100%",
-          // Ensure this Box takes the full width of the viewport
-          // marginLeft: "350px", // Offset for the sidebar
+          position: "relative", // Add relative positioning here
         }}
       >
         <IconButton
@@ -184,9 +185,13 @@ const Journey = () => {
                 p: 2,
                 mt: 2,
                 textAlign: "left",
-                width: "100%", // Ensure this Box takes the full width of its parent
+                width: "calc(100% - 250px)", // Adjust width to account for method-details
                 pl: "350px",
                 paddingBottom: "50px",
+                className: "Method_Number",
+                display: "inline-block",
+                verticalAlign: "top",
+                position: "relative",
               }}
             >
               <Typography variant="h5" sx={{ p: "30px 0" }}>
@@ -214,12 +219,94 @@ const Journey = () => {
                 Step by Step
               </Button>
             </Box>
+
+            <Box
+              sx={{
+                position: "absolute",
+                right: "10px",
+                top: "10px",
+                width: "100px",
+                height: "50px",
+                bgcolor: "lightgrey",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                borderRadius: "4px",
+              }}
+            >
+              <Typography>Placeholder</Typography>
+            </Box>
+
+            {/* <Box
+              className="method-details"
+              sx={{
+                position: "absolute",
+                right: 0,
+                top: "50px",
+                width: "250px",
+                bgcolor: "white",
+                height: "calc(100% - 50px)",
+                overflowY: "auto",
+                borderRadius: "10px",
+                m: "0 10px",
+                display: "inline-block",
+                verticalAlign: "top",
+              }}
+            >
+              <Typography variant="h6" sx={{ p: 2 }}>
+                Helpful Hints
+              </Typography>
+              {method.helpfulHints.map((hint, index) => (
+                <Typography key={index} sx={{ mt: 2, p: 2 }}>
+                  {hint}
+                </Typography>
+              ))}
+              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
+                Helpful Resources
+              </Typography>
+              {method.helpfulResources.map((resource, index) => (
+                <Typography key={index} sx={{ mt: 2, p: 2 }}>
+                  {resource}
+                </Typography>
+              ))}
+              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
+                Templates
+              </Typography>
+              <Box
+                sx={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: 2,
+                  mt: 2,
+                  p: 2,
+                }}
+              >
+                {method.templates.map((template, index) => (
+                  <Box
+                    key={index}
+                    sx={{ p: 2, bgcolor: "lightgrey", borderRadius: 1 }}
+                  >
+                    <Typography>{template}</Typography>
+                  </Box>
+                ))}
+              </Box>
+              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
+                Related / Alternative Methods
+              </Typography>
+              {method.relatedMethods.map((method, index) => (
+                <Typography key={index} sx={{ mt: 2, p: 2 }}>
+                  {method}
+                </Typography>
+              ))}
+            </Box> */}
+
             <Box
               sx={{
                 backgroundColor: "white",
                 p: 2,
                 mt: 2,
                 textAlign: "left",
+                className: "Examples_Number",
               }}
             >
               <Typography variant="h5" sx={{ pl: "330px" }}>
@@ -241,69 +328,6 @@ const Journey = () => {
           </React.Fragment>
         ))}
       </Box>
-
-      {selectedMethod && (
-        <Box
-          classname="method-details"
-          sx={{
-            position: "fixed",
-            right: 0,
-            top: "50px",
-            width: "250px",
-            bgcolor: "white",
-            height: "calc(100% - 50px)",
-            overflowY: "auto",
-            borderRadius: "10px",
-            m: "0 10px",
-          }}
-        >
-          <Typography variant="h6" sx={{ p: 2 }}>
-            Helpful Hints
-          </Typography>
-          {selectedMethod.helpfulHints.map((hint, index) => (
-            <Typography key={index} sx={{ mt: 2, p: 2 }}>
-              {hint}
-            </Typography>
-          ))}
-          <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-            Helpful Resources
-          </Typography>
-          {selectedMethod.helpfulResources.map((resource, index) => (
-            <Typography key={index} sx={{ mt: 2, p: 2 }}>
-              {resource}
-            </Typography>
-          ))}
-          <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-            Templates
-          </Typography>
-          <Box
-            sx={{
-              display: "grid",
-              gridTemplateColumns: "1fr 1fr",
-              gap: 2,
-              mt: 2,
-              p: 2,
-            }}
-          >
-            {selectedMethod.templates.map((template, index) => (
-              <Box
-                key={index}
-                sx={{ p: 2, bgcolor: "lightgrey", borderRadius: 1 }}
-              >
-                <Typography>{template}</Typography>
-              </Box>
-            ))}
-          </Box>
-          <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-            Related / Alternative Methods
-          </Typography>
-          {selectedMethod.relatedMethods.map((method, index) => (
-            <Typography key={index} sx={{ mt: 2, p: 2 }}>
-              {method}
-            </Typography>
-          ))}
-        </Box>
-      )}
     </Box>
   );
 };
