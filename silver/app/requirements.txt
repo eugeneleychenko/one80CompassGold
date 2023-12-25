@@ -8,4 +8,4 @@ faiss-cpu
 tiktoken
 pydantic==2.5.3
 asyncio==3.4.3
-typing==3.10.0.0
+typing==3.10.0
