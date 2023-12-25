@@ -66,3 +66,6 @@ async def send_message(content: str) -> AsyncIterable[str]:
 async def stream_chat(message: Message):
     generator = send_message(message.content)
     return StreamingResponse(generator, media_type="text/event-stream")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8000)

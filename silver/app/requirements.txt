@@ -6,3 +6,4 @@ langchain
 openai
 faiss-cpu
 tiktoken
+pydantic==2.5.3
