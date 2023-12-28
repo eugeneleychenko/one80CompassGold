@@ -11,8 +11,8 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 
-const matchEndpoint = "0.0.0.0:8002";
-const gptEndpoint = "0.0.0.0:8003";
+const matchEndpoint = "match-oeed.onrender.com";
+const gptEndpoint = "gpt-upg8.onrender.com";
 
 const ChatInterface = () => {
   const {
@@ -108,12 +108,12 @@ const ChatInterface = () => {
     // Determine the API endpoint and request body based on the number of friend messages
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
-      url = `http://${gptEndpoint}/stream_chat/`;
+      url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput });
     } else {
       // Use the original API for the first message
-      url = `http://${matchEndpoint}/find_closest_match/`;
+      url = `https://${matchEndpoint}/find_closest_match/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ user_input: userInput });
     }
