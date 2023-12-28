@@ -1,8 +1,8 @@
-fastapi==0.68.1
-uvicorn==0.15.0
-requests==2.26.0
-python-dotenv==0.19.1
-langchain==0.1.0
+fastapi
+uvicorn
+requests
+python-dotenv
+langchain
 openai
 faiss-cpu
 pydantic
