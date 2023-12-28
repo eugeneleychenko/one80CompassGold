@@ -8,6 +8,8 @@ const ChatContext = React.createContext({
   setCurrentFriendMessage: () => {},
   initialFriendDetails: null,
   setInitialFriendDetails: () => {},
+  createJourneyClickCount: 0,
+  setCreateJourneyClickCount: () => {},
 });
 
 export default ChatContext;

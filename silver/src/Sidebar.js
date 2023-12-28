@@ -9,6 +9,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import ShuffleIcon from "@mui/icons-material/Shuffle";
 import DeleteIcon from "@mui/icons-material/Delete";
+// import ChatContext from "./ChatContext";
 
 const Sidebar = () => {
   // Fake placeholders
@@ -20,9 +21,13 @@ const Sidebar = () => {
   const handleDeleteMethod = (method) => {};
   const shuffleCount = {};
   const currentAlts = {};
-  const { initialFriendDetails } = useContext(ChatContext);
+  const {
+    createJourneyClickCount,
+    setCreateJourneyClickCount,
+    initialFriendDetails,
+  } = useContext(ChatContext);
 
-  // console.log(initialFriendDetails);
+  console.log(createJourneyClickCount);
 
   return (
     <Grid container style={{ height: "100vh", width: "35%" }}>
@@ -37,7 +42,7 @@ const Sidebar = () => {
       >
         <h3>CUSTOM JOURNEY</h3>
         <Button
-          style={{ width: "90%" }}
+          style={{ width: "90%", margin: "0 auto", display: "block" }}
           variant={topics.length === 0 ? "contained" : "outlined"}
           color="primary"
           onClick={handleNewTopic}
@@ -58,6 +63,7 @@ const Sidebar = () => {
 
         {initialFriendDetails &&
           initialFriendDetails.Methods &&
+          createJourneyClickCount > 0 &&
           initialFriendDetails.Methods.map((method, index) => (
             <React.Fragment key={index}>
               <Divider style={{ backgroundColor: "grey", marginTop: "10px" }} />
@@ -82,6 +88,13 @@ const Sidebar = () => {
                 >
                   {method}
                 </AccordionSummary>
+                <AccordionDetails>
+                  {
+                    initialFriendDetails.Alternatives[index][method][
+                      "Sidebar Description"
+                    ]
+                  }
+                </AccordionDetails>
               </Accordion>
             </React.Fragment>
           ))}
