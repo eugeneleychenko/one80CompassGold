@@ -8,7 +8,8 @@ from fastapi.responses import StreamingResponse
 from langchain.callbacks import AsyncIteratorCallbackHandler
 from langchain.chat_models import ChatOpenAI
 from langchain.schema import HumanMessage
-from pydantic import BaseModel
+from pydantic import BaseModel# Import the FastAPI app instance from your gpt.py file
+import uvicorn
 
 load_dotenv()
 
@@ -66,3 +67,6 @@ async def send_message(content: str) -> AsyncIterable[str]:
 async def stream_chat(message: Message):
     generator = send_message(message.content)
     return StreamingResponse(generator, media_type="text/event-stream")
+
+if __name__ == "__main__":
+    uvicorn.run(app, host="0.0.0.0", port=8003)  # Run the server on localhost and port 8000

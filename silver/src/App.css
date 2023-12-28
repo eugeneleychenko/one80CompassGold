@@ -55,3 +55,14 @@
   bottom: 0; /* Adjust positioning as needed */
   width: calc(100% - 250px); /* Assuming the sidebar is 250px wide */
 }
+
+.pretty {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr 250px;
+  align-items: start;
+}
+
+.flex-container {
+  display: flex;
+}

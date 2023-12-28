@@ -96,7 +96,12 @@ async def find_closest_match(payload: dict):
                     'Alt 2': method_entry.get('Alt 2', ''),
                     'Alt 3': method_entry.get('Alt 3', ''),
                     'Description (short)': method_entry.get('Description (short)', ''),
-                    'AI Response': method_entry.get('AI Response', '')
+                    'AI Response': method_entry.get('AI Response', ''),
+                    'Sidebar Description': method_entry.get('Sidebar Description', ''),
+                    'Helpful Hints': method_entry.get('Helpful Hints', ''),
+                    'Helpful Resources': method_entry.get('Helpful Resources', ''),
+                    'Templates': method_entry.get('Templates', ''),
+                    'Examples': method_entry.get('Examples', ''),
                 }
                 alternatives_list.append({method: alternatives})
 
@@ -107,7 +112,7 @@ async def find_closest_match(payload: dict):
         })
     
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8002)
 
 
 

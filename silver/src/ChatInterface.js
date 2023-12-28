@@ -9,11 +9,10 @@ import { ChatInput } from "./ChatInput";
 import ChatContext from "./ChatContext";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
+import { useNavigate } from "react-router-dom";
 
-// Placeholder functions
-const handleCreateJourneyClick = (methods) => {
-  // TODO: Implement this function
-};
+const matchEndpoint = "0.0.0.0:8002";
+const gptEndpoint = "0.0.0.0:8003";
 
 const ChatInterface = () => {
   const {
@@ -21,6 +20,8 @@ const ChatInterface = () => {
     sendMessage,
     initialFriendDetails,
     setInitialFriendDetails,
+    createJourneyClickCount,
+    setCreateJourneyClickCount,
   } = useContext(ChatContext);
   const [hasUserSentFirstMessage, setHasUserSentFirstMessage] = useState(false);
   const [hasFriendResponded, setHasFriendResponded] = useState(false);
@@ -45,16 +46,18 @@ const ChatInterface = () => {
     }
   }, [messages]);
 
-  // Initial quesiton
+  // Initial question
   useEffect(() => {
-    // Use the default message from ChatProvider's defaultMessages
-    const defaultMessage = {
-      text: "How can I help you with your user design problem today?",
-      sender: "friend",
-    };
-    sendMessage(defaultMessage);
+    if (messages.length === 0) {
+      // Use the default message from ChatProvider's defaultMessages
+      const defaultMessage = {
+        text: "How can I help you with your user design problem today?",
+        sender: "friend",
+      };
+      sendMessage(defaultMessage);
+    }
     // ... rest of your useEffect code
-  }, []);
+  }, [messages]);
 
   // Saves friend response array
   useEffect(() => {
@@ -70,6 +73,18 @@ const ChatInterface = () => {
     // console.log("initialFriendDetails: ", initialFriendDetails);
   }, [messages, initialFriendDetails, setInitialFriendDetails]);
 
+  const navigate = useNavigate();
+
+  const handleCreateJourneyClick = () => {
+    // Increment the click count
+    setCreateJourneyClickCount((prevCount) => prevCount + 1);
+
+    // Navigate to /journey with the methods query parameters
+    navigate(`/journey`);
+  };
+
+  console.log("initialFriendDetails: ", initialFriendDetails);
+
   const fetchFriendResponse = async (userInput) => {
     let url;
     let headers;
@@ -81,12 +96,12 @@ const ChatInterface = () => {
     // Determine the API endpoint and request body based on the number of friend messages
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
-      url = "http://127.0.0.1:8000/stream_chat/";
+      url = `http://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput });
     } else {
       // Use the original API for the first message
-      url = "https://one80-compass.vercel.app/find_closest_match";
+      url = `http://${matchEndpoint}/find_closest_match/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ user_input: userInput });
     }
@@ -170,7 +185,7 @@ const ChatInterface = () => {
 
   return (
     <>
-      <Grid container sx={{ height: "100%", position: "relative" }}>
+      <Grid container sx={{ height: "100vh", position: "relative" }}>
         <Grid
           item
           xs={12}
@@ -239,9 +254,7 @@ const ChatInterface = () => {
                       <Button
                         variant="contained"
                         color="secondary"
-                        onClick={() =>
-                          handleCreateJourneyClick(message.details.Methods)
-                        }
+                        onClick={handleCreateJourneyClick}
                       >
                         Create Custom Journey from Answer
                       </Button>

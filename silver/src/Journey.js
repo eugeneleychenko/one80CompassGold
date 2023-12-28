@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useContext } from "react";
 import {
   Box,
   Typography,
@@ -12,6 +12,8 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import ChatBubbleOutlineIcon from "@mui/icons-material/ChatBubbleOutline";
+import { useNavigate } from "react-router-dom";
+import ChatContext from "./ChatContext";
 
 const style = {
   fontFamily: "'Source Sans 3', sans-serif",
@@ -26,12 +28,16 @@ const methods = [
     description:
       "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
     examples: [
-      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.",
+      "Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt  in culpa qui officia deserunt mollit anim id est laborum. ",
     ],
-    helpfulHints: [loremIpsum, loremIpsum, loremIpsum],
-    helpfulResources: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
-    templates: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
-    relatedMethods: [loremIpsum, loremIpsum],
+    helpfulHints: [loremIpsum],
+    helpfulResources: [loremIpsum],
+    templates: [
+      "https://covers.openlibrary.org/b/id/10237130-M.jpg",
+      "https://covers.openlibrary.org/b/id/14444481-M.jpg",
+      "https://covers.openlibrary.org/b/id/12694326-M.jpg",
+    ],
+    relatedMethods: [loremIpsum],
   },
   {
     name: "Method Two",
@@ -42,7 +48,11 @@ const methods = [
     ],
     helpfulHints: [loremIpsum, loremIpsum, loremIpsum],
     helpfulResources: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
-    templates: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
+    templates: [
+      "https://covers.openlibrary.org/b/id/10237130-M.jpg",
+      "https://covers.openlibrary.org/b/id/14444481-M.jpg",
+      "https://covers.openlibrary.org/b/id/12694326-M.jpg",
+    ],
     relatedMethods: [loremIpsum, loremIpsum],
   },
   {
@@ -54,7 +64,11 @@ const methods = [
     ],
     helpfulHints: [loremIpsum, loremIpsum, loremIpsum],
     helpfulResources: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
-    templates: [loremIpsum, loremIpsum, loremIpsum, loremIpsum],
+    templates: [
+      "https://covers.openlibrary.org/b/id/10237130-M.jpg",
+      "https://covers.openlibrary.org/b/id/14444481-M.jpg",
+      "https://covers.openlibrary.org/b/id/12694326-M.jpg",
+    ],
     relatedMethods: [loremIpsum, loremIpsum],
   },
 ];
@@ -63,6 +77,10 @@ const Journey = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [methodPosition, setMethodPosition] = useState({ top: 0, left: 0 });
   const methodRefs = useRef([]);
+  const navigate = useNavigate();
+  const { initialFriendDetails } = useContext(ChatContext);
+  // console.log("methods: ", methods);
+  console.log("initialFriendDetails: ", initialFriendDetails);
 
   useEffect(() => {
     // After the component mounts, calculate the height of the placeholders
@@ -74,8 +92,22 @@ const Journey = () => {
     });
   }, []);
 
-  const handleMethodClick = (method) => {
-    setSelectedMethod(method);
+  const handleClose = () => {
+    navigate("/"); // This will navigate back to the root path
+  };
+
+  const handleMethodClick = (index) => {
+    // Construct the unique class name for the method
+    const methodName = `Method_Number_${index}`;
+    // Find the element by its class name
+    const methodElement = document.querySelector(`.${methodName}`);
+    // Scroll to the method element if it exists
+    if (methodElement) {
+      methodElement.scrollIntoView({
+        behavior: "smooth",
+        block: "start",
+      });
+    }
   };
 
   const handleMethodDelete = (method) => {
@@ -91,7 +123,7 @@ const Journey = () => {
       className="menu"
       sx={{
         display: "flex",
-        width: "93%", // Set the parent container to full width
+        width: "100%", // Set the parent container to full width
         position: "relative", // Needed for absolute positioning context
         mt: "50px",
       }}
@@ -111,17 +143,26 @@ const Journey = () => {
       >
         <List className="List_Number">
           <ListItem button key="overview">
-            <ListItemText primary="Overview" />
+            <ListItemText
+              primary="Overview"
+              primaryTypographyProps={{ fontWeight: "bold" }}
+            />
           </ListItem>
           <Divider sx={{ margin: "0 20px", bgcolor: "grey" }} />
-          {methods.map((method, index) => (
+          {console.log(
+            "initialFriendDetails.Methods:",
+            initialFriendDetails.Methods
+          )}
+          {initialFriendDetails.Methods?.map((method, index) => (
             <React.Fragment key={index}>
               <ListItem
                 button
                 style={style}
-                onClick={() => handleMethodClick(method)}
+                onClick={() => {
+                  handleMethodClick(index);
+                }}
               >
-                <ListItemText primary={method.name} />
+                <ListItemText primary={method} />
               </ListItem>
               <Divider sx={{ margin: "0 20px", bgcolor: "grey" }} />
             </React.Fragment>
@@ -141,6 +182,7 @@ const Journey = () => {
                 width: "calc(100% - 20px)",
                 margin: "0 10px",
               }}
+              onClick={handleClose}
               endIcon={<ChatBubbleOutlineIcon />}
             >
               Return to Chat
@@ -161,7 +203,7 @@ const Journey = () => {
         }}
       >
         <IconButton
-          onClick={() => setSelectedMethod(null)}
+          onClick={handleClose}
           sx={{ position: "absolute", top: 0, right: 0 }}
         >
           <CloseIcon />
@@ -178,7 +220,7 @@ const Journey = () => {
         </Typography>
         <Typography
           variant="h7"
-          sx={{ textAlign: "left", p: "40px 0 ", pl: "350px" }}
+          sx={{ textAlign: "left", p: "40px 0 ", pl: "350px", pr: "100px" }}
         >
           Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
@@ -188,156 +230,186 @@ const Journey = () => {
           pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
           culpa qui officia deserunt mollit anim id est laborum.
         </Typography>
-        {methods.map((method, index) => (
-          <React.Fragment key={index}>
-            <Box
-              ref={(el) => (methodRefs.current[index] = el)} // Assign ref to the method box
-              sx={{
-                backgroundColor: "tan",
-                p: 2,
-                mt: 2,
-                textAlign: "left",
-                width: "calc(100% - 250px)", // Adjust width to account for method-details
-                pl: "350px",
-                paddingBottom: "50px",
-                className: "Method_Number",
-                display: "inline-block",
-                verticalAlign: "top",
-                position: "relative",
-              }}
-            >
-              <Typography variant="h5" sx={{ p: "30px 0" }}>
-                {method.name}
-              </Typography>
 
-              {method.description.split("\n").map((line, index) => (
-                <div
-                  key={index}
-                  style={{
-                    paddingTop: "20px",
-                    paddingRight: "350px",
+        {console.log(
+          "initialFriendDetails.Methods:",
+          initialFriendDetails.Methods
+        )}
+        {initialFriendDetails.Methods?.map((method, index) => (
+          <React.Fragment key={index}>
+            <div className="pretty">
+              <div className={`pretty-content Method_Number_${index}`}>
+                <Box
+                  // ref={(el) => (methodRefs.current[index] = el)} // Assign ref to the method box
+                  sx={{
+                    backgroundColor: "tan",
+                    p: 2,
+                    mt: 2,
+                    textAlign: "left",
+                    width: "calc(100% - 250px)", // Adjust width to account for method-details
+                    pl: "350px",
+                    paddingBottom: "50px",
+                    className: "Method_Number",
+                    display: "inline-block",
+                    verticalAlign: "top",
+                    position: "relative",
                   }}
                 >
-                  {line}
-                </div>
-              ))}
-              <br></br>
-              <Button
-                variant="contained"
-                color="warning"
-                endIcon={<PlayArrowIcon />}
-                sx={{ mt: 1 }}
-              >
-                Step by Step
-              </Button>
-            </Box>
+                  <Typography variant="h5" sx={{ p: "30px 0" }}>
+                    {method}
+                  </Typography>
+                  <div style={{ paddingTop: "20px" }}>
+                    <Typography sx={{ pr: "350px" }}>
+                      {initialFriendDetails.Alternatives[index][method][
+                        "AI Response"
+                      ]
+                        .split("*")
+                        .map((line, idx) => (
+                          <React.Fragment key={idx}>
+                            {line}
+                            <br />
+                          </React.Fragment>
+                        ))}
+                    </Typography>
+                  </div>
+                  <br />
+                  <Button
+                    variant="contained"
+                    color="warning"
+                    endIcon={<PlayArrowIcon />}
+                    sx={{ mt: 1 }}
+                  >
+                    Step by Step
+                  </Button>
+                </Box>
 
-            {/* <Box
-              className="placeholder"
-              sx={{
-                position: "absolute",
-                right: "10px",
-                top: "10px",
-                width: "100px",
-                height: "550px",
-                bgcolor: "lightgrey",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                borderRadius: "4px",
-              }}
-            >
-              <Typography>Placeholder</Typography>
-            </Box> */}
+                <Box
+                  sx={{
+                    backgroundColor: "white",
 
-            <Box
-              className="method-details"
-              sx={{
-                position: "absolute",
-                right: 0,
-                top: "50px",
-                width: "250px",
-                bgcolor: "white",
-                height: "calc(100% - 50px)",
-                overflowY: "auto",
-                borderRadius: "10px",
-                m: "0 10px",
-                display: "inline-block",
-                verticalAlign: "top",
-              }}
-            >
-              <Typography variant="h6" sx={{ p: 2 }}>
-                Helpful Hints
-              </Typography>
-              {method.helpfulHints.map((hint, index) => (
-                <Typography key={index} sx={{ mt: 2, p: 2 }}>
-                  {hint}
-                </Typography>
-              ))}
-              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-                Helpful Resources
-              </Typography>
-              {method.helpfulResources.map((resource, index) => (
-                <Typography key={index} sx={{ mt: 2, p: 2 }}>
-                  {resource}
-                </Typography>
-              ))}
-              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-                Templates
-              </Typography>
+                    p: 2,
+                    mt: 2,
+                    textAlign: "left",
+                    className: "Examples_Number",
+                  }}
+                >
+                  <Typography variant="h5" sx={{ pl: "330px" }}>
+                    Examples
+                  </Typography>
+                  {initialFriendDetails.Alternatives[index][method]["Examples"]
+                    .split("\n\n")
+                    .map((paragraph, idx) => (
+                      <Typography
+                        key={idx}
+                        sx={{
+                          textAlign: "left",
+                          pt: "20px",
+                          pl: "330px",
+                          pr: "200px",
+                        }}
+                      >
+                        {paragraph}
+                      </Typography>
+                    ))}
+                </Box>
+              </div>
+
               <Box
+                className="method-details"
                 sx={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: 2,
-                  mt: 2,
-                  p: 2,
+                  position: "sticky",
+                  right: "40px",
+                  // top: "150px",
+                  width: "250px",
+                  bgcolor: "black",
+                  color: "white",
+                  borderRadius: "10px",
+                  m: "0 10px",
+
+                  verticalAlign: "top",
                 }}
               >
-                {method.templates.map((template, index) => (
-                  <Box
-                    key={index}
-                    sx={{ p: 2, bgcolor: "lightgrey", borderRadius: 1 }}
-                  >
-                    <Typography>{template}</Typography>
-                  </Box>
-                ))}
-              </Box>
-              <Typography variant="h6" sx={{ mt: 4, p: 2 }}>
-                Related / Alternative Methods
-              </Typography>
-              {method.relatedMethods.map((method, index) => (
-                <Typography key={index} sx={{ mt: 2, p: 2 }}>
-                  {method}
+                <Typography
+                  variant="subtitle1"
+                  sx={{ p: 2, textAlign: "left", fontWeight: "bold" }}
+                >
+                  Helpful Hints
                 </Typography>
-              ))}
-            </Box>
-
-            <Box
-              sx={{
-                backgroundColor: "white",
-                p: 2,
-                mt: 2,
-                textAlign: "left",
-                className: "Examples_Number",
-              }}
-            >
-              <Typography variant="h5" sx={{ pl: "330px" }}>
-                Examples
-              </Typography>
-              {method.examples.map((example, index) => (
-                <div
-                  key={index}
-                  style={{
-                    paddingLeft: "330px",
-                    paddingTop: "20px",
-                    paddingRight: "50px",
+                <Box sx={{ p: 2 }}>
+                  {initialFriendDetails.Alternatives[index][method][
+                    "Helpful Hints"
+                  ]
+                    .split("\n")
+                    .map((hint, idx) => (
+                      <Typography key={idx} sx={{ mb: 1 }}>
+                        {hint}
+                      </Typography>
+                    ))}
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ p: 2, textAlign: "left", fontWeight: "bold" }}
+                >
+                  Helpful Resources
+                </Typography>
+                <Box sx={{ p: 2 }}>
+                  {initialFriendDetails.Alternatives[index][method][
+                    "Helpful Resources"
+                  ]
+                    .split("\n")
+                    .map((resource, idx) => (
+                      <Typography key={idx} sx={{ mb: 1 }}>
+                        {resource}
+                      </Typography>
+                    ))}
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ p: 2, textAlign: "left", fontWeight: "bold" }}
+                >
+                  Templates
+                </Typography>
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    justifyContent: "space-around",
+                    gap: 2,
+                    p: 2,
                   }}
                 >
-                  <Typography variant="h7">{example}</Typography>
-                </div>
-              ))}
-            </Box>
+                  {initialFriendDetails.Alternatives[index][method]["Templates"]
+                    .split("\n")
+                    .map((template, idx) => (
+                      <img
+                        key={idx}
+                        src={template.trim().split(") ")[1]}
+                        alt={`Template ${idx + 1}`}
+                        style={{ width: "100px", height: "150px" }}
+                      />
+                    ))}
+                </Box>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ p: 2, textAlign: "left", fontWeight: "bold" }}
+                >
+                  Related / Alternative Methods
+                </Typography>
+                <Box sx={{ p: 2 }}>
+                  {["Alt 1", "Alt 2", "Alt 3"].map((alt) =>
+                    initialFriendDetails.Alternatives[index][method][alt]
+                      ? initialFriendDetails.Alternatives[index][method][alt]
+                          .split("\n")
+                          .map((resource, idx) => (
+                            <Typography key={`${alt}-${idx}`} sx={{ mb: 1 }}>
+                              {resource}
+                            </Typography>
+                          ))
+                      : null
+                  )}
+                </Box>
+              </Box>
+            </div>
           </React.Fragment>
         ))}
       </Box>
