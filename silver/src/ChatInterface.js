@@ -11,8 +11,8 @@ import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 
-const matchEndpoint = "0.0.0.0:8002";
-const gptEndpoint = "0.0.0.0:8003";
+const matchEndpoint = "match-oeed.onrender.com";
+const gptEndpoint = "gpt-upg8.onrender.com";
 
 const ChatInterface = () => {
   const {
@@ -35,7 +35,7 @@ const ChatInterface = () => {
     ) {
       setHasFriendResponded(true); // Set this to true after the first friend response
     }
-    console.log(messages);
+    // console.log(messages);
   }, [messages]); // Depend on messages to trigger this effect
 
   // runs fetchFriendResponse
@@ -79,8 +79,20 @@ const ChatInterface = () => {
     // Increment the click count
     setCreateJourneyClickCount((prevCount) => prevCount + 1);
 
-    // Navigate to /journey with the methods query parameters
-    navigate(`/journey`);
+    // Check if initialFriendDetails and Methods exist
+    if (initialFriendDetails && initialFriendDetails.Methods) {
+      // Join the methods with '&'
+      const methods = initialFriendDetails.Methods.join("&");
+
+      // Base64 encode the methods
+      const encodedMethods = btoa(methods);
+
+      // Navigate to /journey with the encoded methods as a parameter
+      navigate(`/journey?data=${encodeURIComponent(encodedMethods)}`);
+
+      const decodedMethods = atob(encodedMethods);
+      console.log(decodedMethods);
+    }
   };
 
   console.log("initialFriendDetails: ", initialFriendDetails);
@@ -96,12 +108,12 @@ const ChatInterface = () => {
     // Determine the API endpoint and request body based on the number of friend messages
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
-      url = `http://${gptEndpoint}/stream_chat/`;
+      url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput });
     } else {
       // Use the original API for the first message
-      url = `http://${matchEndpoint}/find_closest_match/`;
+      url = `https://${matchEndpoint}/find_closest_match/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ user_input: userInput });
     }
@@ -128,6 +140,7 @@ const ChatInterface = () => {
             if (value) {
               const chunk = new TextDecoder("utf-8").decode(value);
               friendMessageText += chunk; // Append the new chunk to the message text
+              console.log("Received chunk: ", chunk); // Log the received chunk
               setFriendMessageChunks(friendMessageText); // Update the state with the new text
             }
 
@@ -135,18 +148,6 @@ const ChatInterface = () => {
               // Continue reading the next chunk
               return reader.read().then(processText);
             } else {
-              // sendMessage((prevMessages) =>
-              //   prevMessages.map((msg) => {
-              //     console.log(msg); // This will log each message to the console
-              //     return msg.key === newMessage.key
-              //       ? {
-              //           ...msg,
-              //           text: friendMessageText,
-              //         }
-              //       : msg;
-              //   })
-              // );
-              // sendMessage(friendMessageText);
               setFriendMessageChunks("");
               const defaultMessage = {
                 text: friendMessageText,
