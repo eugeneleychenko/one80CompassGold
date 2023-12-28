@@ -1,4 +1,5 @@
 import React, { useContext, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import ChatContext from "./ChatContext";
 import Grid from "@mui/material/Grid";
 import Button from "@mui/material/Button";
@@ -12,7 +13,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 // import ChatContext from "./ChatContext";
 
 const Sidebar = () => {
-  // Fake placeholders
+  const navigate = useNavigate();
   const topics = [];
   const methods = [];
   const handleNewTopic = () => {};
@@ -49,6 +50,8 @@ const Sidebar = () => {
         >
           New Topic
         </Button>
+        <br />
+
         {topics.map((topic, index) => (
           <div key={index}>
             <Button
@@ -63,41 +66,80 @@ const Sidebar = () => {
 
         {initialFriendDetails &&
           initialFriendDetails.Methods &&
-          createJourneyClickCount > 0 &&
-          initialFriendDetails.Methods.map((method, index) => (
-            <React.Fragment key={index}>
-              <Divider style={{ backgroundColor: "grey", marginTop: "10px" }} />
-              <Accordion>
-                <AccordionSummary
-                  expandIcon={
-                    <>
-                      <ShuffleIcon
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleShuffleClick(method);
-                        }}
-                      />
-                      <DeleteIcon
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteMethod(method);
-                        }}
-                      />
-                    </>
-                  }
-                >
-                  {method}
-                </AccordionSummary>
-                <AccordionDetails>
-                  {
-                    initialFriendDetails.Alternatives[index][method][
-                      "Sidebar Description"
-                    ]
-                  }
-                </AccordionDetails>
-              </Accordion>
-            </React.Fragment>
-          ))}
+          createJourneyClickCount > 0 && (
+            <>
+              <Button
+                style={{
+                  width: "90%",
+                  margin: "0 auto",
+                  display: "block",
+                }}
+                variant="outlined"
+                color="primary"
+                // onClick={() => setJourneyOpen(!journeyOpen)}
+              >
+                Journey One
+              </Button>
+
+              <Button
+                variant="contained"
+                sx={{
+                  bgcolor: "black",
+                  color: "white",
+                  border: "1px solid white",
+                  borderRadius: "30px",
+                  "&:hover": {
+                    bgcolor: "black",
+                    color: "white",
+                  },
+                  width: "calc(100% - 20px)",
+                  margin: "0 10px",
+                  pt: "10px",
+                  mb: "10px",
+                  mt: "20px",
+                }}
+                onClick={() => navigate("/journey")}
+              >
+                Go To Journey Hub
+              </Button>
+              {initialFriendDetails.Methods.map((method, index) => (
+                <React.Fragment key={index}>
+                  <Divider
+                    style={{ backgroundColor: "grey", marginTop: "10px" }}
+                  />
+                  <Accordion>
+                    <AccordionSummary
+                      expandIcon={
+                        <>
+                          <ShuffleIcon
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleShuffleClick(method);
+                            }}
+                          />
+                          <DeleteIcon
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              handleDeleteMethod(method);
+                            }}
+                          />
+                        </>
+                      }
+                    >
+                      {method}
+                    </AccordionSummary>
+                    <AccordionDetails>
+                      {
+                        initialFriendDetails.Alternatives[index][method][
+                          "Sidebar Description"
+                        ]
+                      }
+                    </AccordionDetails>
+                  </Accordion>
+                </React.Fragment>
+              ))}
+            </>
+          )}
       </Grid>
     </Grid>
   );

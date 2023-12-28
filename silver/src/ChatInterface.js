@@ -35,7 +35,7 @@ const ChatInterface = () => {
     ) {
       setHasFriendResponded(true); // Set this to true after the first friend response
     }
-    console.log(messages);
+    // console.log(messages);
   }, [messages]); // Depend on messages to trigger this effect
 
   // runs fetchFriendResponse
@@ -79,8 +79,20 @@ const ChatInterface = () => {
     // Increment the click count
     setCreateJourneyClickCount((prevCount) => prevCount + 1);
 
-    // Navigate to /journey with the methods query parameters
-    navigate(`/journey`);
+    // Check if initialFriendDetails and Methods exist
+    if (initialFriendDetails && initialFriendDetails.Methods) {
+      // Join the methods with '&'
+      const methods = initialFriendDetails.Methods.join("&");
+
+      // Base64 encode the methods
+      const encodedMethods = btoa(methods);
+
+      // Navigate to /journey with the encoded methods as a parameter
+      navigate(`/journey?data=${encodeURIComponent(encodedMethods)}`);
+
+      const decodedMethods = atob(encodedMethods);
+      console.log(decodedMethods);
+    }
   };
 
   console.log("initialFriendDetails: ", initialFriendDetails);
@@ -128,6 +140,7 @@ const ChatInterface = () => {
             if (value) {
               const chunk = new TextDecoder("utf-8").decode(value);
               friendMessageText += chunk; // Append the new chunk to the message text
+              console.log("Received chunk: ", chunk); // Log the received chunk
               setFriendMessageChunks(friendMessageText); // Update the state with the new text
             }
 
@@ -135,18 +148,6 @@ const ChatInterface = () => {
               // Continue reading the next chunk
               return reader.read().then(processText);
             } else {
-              // sendMessage((prevMessages) =>
-              //   prevMessages.map((msg) => {
-              //     console.log(msg); // This will log each message to the console
-              //     return msg.key === newMessage.key
-              //       ? {
-              //           ...msg,
-              //           text: friendMessageText,
-              //         }
-              //       : msg;
-              //   })
-              // );
-              // sendMessage(friendMessageText);
               setFriendMessageChunks("");
               const defaultMessage = {
                 text: friendMessageText,
