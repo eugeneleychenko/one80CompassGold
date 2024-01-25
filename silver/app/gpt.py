@@ -43,7 +43,7 @@ def apply_prompt_template(content: str, history: str) -> str:
          Journaling -> Contextual Inquiry or Fly-on-the-wall
         Rose, thorn, bud -> Critique
         
-        Start the statement with, As per your request for an alternative, for {{original method}} you can use {{**_alternative method_**}}
+        Start the statement with, As per your request for an alternative, you can use {{**_alternative method_**}}
          """
         
         
