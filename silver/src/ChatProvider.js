@@ -8,12 +8,27 @@ export const ChatProvider = ({ children }) => {
   const [currentFriendMessage, setCurrentFriendMessage] = useState(null);
   const [initialFriendDetails, setInitialFriendDetails] = useState(null);
   const [createJourneyClickCount, setCreateJourneyClickCount] = useState(0);
+  const [selectedMethods, setSelectedMethods] = useState([]);
 
   const sendMessage = (message) => {
     setMessages([...messages, message]);
     if (message.sender === "friend") {
       setCurrentFriendMessage(message);
     }
+  };
+
+  const addMethodToSidebar = (method) => {
+    if (!selectedMethods.includes(method)) {
+      setSelectedMethods((prevMethods) => [...prevMethods, method]);
+      setCreateJourneyClickCount((prevCount) => prevCount + 1);
+    }
+  };
+
+  const handleDeleteMethod = (method) => {
+    setSelectedMethods((prevMethods) =>
+      prevMethods.filter((m) => m !== method)
+    );
+    setCreateJourneyClickCount((prevCount) => prevCount - 1);
   };
 
   return (
@@ -27,6 +42,9 @@ export const ChatProvider = ({ children }) => {
         setInitialFriendDetails,
         createJourneyClickCount,
         setCreateJourneyClickCount,
+        selectedMethods,
+        addMethodToSidebar,
+        handleDeleteMethod,
       }}
     >
       {/* ... other components ... */}
