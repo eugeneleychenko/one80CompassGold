@@ -12,8 +12,8 @@ import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 
 const matchEndpoint = "match-oeed.onrender.com";
-// const gptEndpoint = "gpt-upg8.onrender.com";
-const gptEndpoint = "0.0.0.0:8003";
+const gptEndpoint = "gpt-upg8.onrender.com";
+//const gptEndpoint = "0.0.0.0:8003";
 
 const ChatInterface = () => {
   const {
