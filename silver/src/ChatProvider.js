@@ -9,6 +9,7 @@ export const ChatProvider = ({ children }) => {
   const [initialFriendDetails, setInitialFriendDetails] = useState(null);
   const [createJourneyClickCount, setCreateJourneyClickCount] = useState(0);
   const [selectedMethods, setSelectedMethods] = useState([]);
+  const [firstUserInput, setFirstUserInput] = useState("");
 
   const sendMessage = (message) => {
     setMessages([...messages, message]);
@@ -45,6 +46,8 @@ export const ChatProvider = ({ children }) => {
         selectedMethods,
         addMethodToSidebar,
         handleDeleteMethod,
+        firstUserInput,
+        setFirstUserInput,
       }}
     >
       {/* ... other components ... */}

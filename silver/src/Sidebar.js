@@ -23,6 +23,7 @@ const Sidebar = () => {
     selectedMethods,
     setSelectedMethods,
     handleDeleteMethod,
+    firstUserInput,
   } = useContext(ChatContext);
 
   console.log(createJourneyClickCount);
@@ -71,6 +72,9 @@ const Sidebar = () => {
               selectedMethods.forEach((method) => {
                 params.append("method", method);
               });
+              if (firstUserInput) {
+                params.append("firstUserInput", firstUserInput);
+              }
               window.open(`/journey?${params.toString()}`, "_blank");
             }}
           >
@@ -114,7 +118,8 @@ const Sidebar = () => {
                   </Typography>
                   <br />
                   <Link
-                    href="#"
+                    href={`/journey?method=${encodeURIComponent(method)}`}
+                    target="_blank"
                     style={{
                       textDecoration: "none",
                       color: "white",

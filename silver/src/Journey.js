@@ -27,6 +27,7 @@ const loremIpsum =
 const Journey = () => {
   const [selectedMethod, setSelectedMethod] = useState(null);
   const [methodPosition, setMethodPosition] = useState({ top: 0, left: 0 });
+  const [firstUserInput, setFirstUserInput] = useState("");
   const methodRefs = useRef([]);
   const navigate = useNavigate();
   const { initialFriendDetails, selectedMethods } = useContext(ChatContext);
@@ -73,7 +74,10 @@ const Journey = () => {
     const filterMethodsFromParams = () => {
       const searchParams = new URLSearchParams(location.search);
       const methods = searchParams.getAll("method");
+      const userInput = searchParams.get("firstUserInput");
+      console.log("1st User Input:", userInput); //
       console.log("URL methods:", methods); // Added console log to see the methods in the URL
+      setFirstUserInput(userInput);
       const filteredData = methodsData.filter((item) =>
         methods.includes(item.Uniques)
       );
@@ -202,18 +206,14 @@ const Journey = () => {
         >
           Project Description
         </Typography>
-        <Typography
-          variant="h7"
-          sx={{ textAlign: "left", p: "40px 0 ", pl: "350px", pr: "100px" }}
-        >
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do
-          eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad
-          minim veniam, quis nostrud exercitation ullamco laboris nisi ut
-          aliquip ex ea commodo consequat. Duis aute irure dolor in
-          reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla
-          pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
-          culpa qui officia deserunt mollit anim id est laborum.
-        </Typography>
+        {firstUserInput && (
+          <Typography
+            variant="h7"
+            sx={{ textAlign: "left", p: "20px 0", pl: "350px", pr: "100px" }}
+          >
+            {firstUserInput}
+          </Typography>
+        )}
 
         {selectedMethod?.map((methodDetail, index) => (
           <React.Fragment key={index}>

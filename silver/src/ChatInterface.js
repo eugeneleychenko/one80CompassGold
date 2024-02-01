@@ -24,13 +24,14 @@ const ChatInterface = () => {
     createJourneyClickCount,
     setCreateJourneyClickCount,
     addMethodToSidebar,
+    setFirstUserInput,
   } = useContext(ChatContext);
   const [hasUserSentFirstMessage, setHasUserSentFirstMessage] = useState(false);
   const [hasFriendResponded, setHasFriendResponded] = useState(false);
   const [friendMessageChunks, setFriendMessageChunks] = useState("");
   const [selectedMethods, setSelectedMethods] = useState([]);
 
-  // so Create a Journey appears once
+  // so 'Create a Journey' appears once
   useEffect(() => {
     if (
       // hasFriendResponded &&
@@ -61,6 +62,18 @@ const ChatInterface = () => {
     }
     // ... rest of your useEffect code
   }, [messages]);
+
+  //Saves the first user message
+  useEffect(() => {
+    // Check if there's at least one user message and if the first user input has not been set
+    const firstUserMessage = messages.find(
+      (message) => message.sender === "user"
+    );
+    if (firstUserMessage && !hasUserSentFirstMessage) {
+      setHasUserSentFirstMessage(true);
+      setFirstUserInput(firstUserMessage.text); // Save the first user input
+    }
+  }, [messages, hasUserSentFirstMessage, setFirstUserInput]);
 
   // Saves friend response array
   useEffect(() => {
@@ -97,6 +110,12 @@ const ChatInterface = () => {
       }
     })
     .join("\n");
+
+  const extractMarkedPhrase = (text) => {
+    const match = text.match(/\*\*(.*?)\*\*/);
+    console.log(`extractMarkedPhrase - match:`, match);
+    return match ? match[1] : null;
+  };
 
   const fetchFriendResponse = async (userInput) => {
     let url;
@@ -283,6 +302,29 @@ const ChatInterface = () => {
                       </Button>
                     </ListItem>
                   )} */}
+
+                {message.sender === "friend" &&
+                message.text.includes(
+                  "As per your request for an alternative"
+                ) ? (
+                  <React.Fragment>
+                    <ListItem sx={{ justifyContent: "flex-start" }}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => {
+                          const phrase = extractMarkedPhrase(message.text);
+                          if (phrase) {
+                            handleMethodToSidebar(phrase);
+                          }
+                        }}
+                      >
+                        Add {extractMarkedPhrase(message.text)} to Custom
+                        Journey
+                      </Button>
+                    </ListItem>
+                  </React.Fragment>
+                ) : null}
               </React.Fragment>
             ))}
             {/* Display the friend message chunks if they exist */}
