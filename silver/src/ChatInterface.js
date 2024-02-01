@@ -129,9 +129,9 @@ const ChatInterface = () => {
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
       // use http when using localhost
-      url = `http://${gptEndpoint}/stream_chat/`;
+      // url = `http://${gptEndpoint}/stream_chat/`;
       //use https when using Render
-      // url = `https://${gptEndpoint}/stream_chat/`;
+       url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput, history: formattedHistory });
     } else {
