@@ -12,7 +12,8 @@ import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 
 const matchEndpoint = "match-oeed.onrender.com";
-const gptEndpoint = "gpt-upg8.onrender.com";
+// const gptEndpoint = "gpt-upg8.onrender.com";
+const gptEndpoint = "0.0.0.0:8003";
 
 const ChatInterface = () => {
   const {
@@ -22,12 +23,15 @@ const ChatInterface = () => {
     setInitialFriendDetails,
     createJourneyClickCount,
     setCreateJourneyClickCount,
+    addMethodToSidebar,
+    setFirstUserInput,
   } = useContext(ChatContext);
   const [hasUserSentFirstMessage, setHasUserSentFirstMessage] = useState(false);
   const [hasFriendResponded, setHasFriendResponded] = useState(false);
   const [friendMessageChunks, setFriendMessageChunks] = useState("");
+  const [selectedMethods, setSelectedMethods] = useState([]);
 
-  // so Create a Journey appears once
+  // so 'Create a Journey' appears once
   useEffect(() => {
     if (
       // hasFriendResponded &&
@@ -40,12 +44,12 @@ const ChatInterface = () => {
 
   // runs fetchFriendResponse
   useEffect(() => {
+    console.log("Messages:", messages);
     const lastMessage = messages[messages.length - 1];
     if (lastMessage && lastMessage.sender === "user") {
       fetchFriendResponse(lastMessage.text);
     }
   }, [messages]);
-
   // Initial question
   useEffect(() => {
     if (messages.length === 0) {
@@ -58,6 +62,18 @@ const ChatInterface = () => {
     }
     // ... rest of your useEffect code
   }, [messages]);
+
+  //Saves the first user message
+  useEffect(() => {
+    // Check if there's at least one user message and if the first user input has not been set
+    const firstUserMessage = messages.find(
+      (message) => message.sender === "user"
+    );
+    if (firstUserMessage && !hasUserSentFirstMessage) {
+      setHasUserSentFirstMessage(true);
+      setFirstUserInput(firstUserMessage.text); // Save the first user input
+    }
+  }, [messages, hasUserSentFirstMessage, setFirstUserInput]);
 
   // Saves friend response array
   useEffect(() => {
@@ -73,29 +89,33 @@ const ChatInterface = () => {
     // console.log("initialFriendDetails: ", initialFriendDetails);
   }, [messages, initialFriendDetails, setInitialFriendDetails]);
 
-  const navigate = useNavigate();
-
-  const handleCreateJourneyClick = () => {
-    // Increment the click count
-    setCreateJourneyClickCount((prevCount) => prevCount + 1);
-
-    // Check if initialFriendDetails and Methods exist
-    if (initialFriendDetails && initialFriendDetails.Methods) {
-      // Join the methods with '&'
-      const methods = initialFriendDetails.Methods.join("&");
-
-      // Base64 encode the methods
-      const encodedMethods = btoa(methods);
-
-      // Navigate to /journey with the encoded methods as a parameter
-      navigate(`/journey?data=${encodeURIComponent(encodedMethods)}`);
-
-      const decodedMethods = atob(encodedMethods);
-      console.log(decodedMethods);
-    }
+  const handleMethodToSidebar = (method) => {
+    addMethodToSidebar(method);
   };
 
   console.log("initialFriendDetails: ", initialFriendDetails);
+
+  // Collect and format the conversation history
+  const formattedHistory = messages
+    .map((message, index) => {
+      // Check if it's the third message and if it has details.AI_responses
+      if (index === 2 && message.details && message.details.AI_responses) {
+        // Map through the AI_responses and format them
+        return message.details.AI_responses.map(
+          (response, idx) => `AI Response ${idx + 1}: ${response}`
+        ).join("\n");
+      } else {
+        // Format each message as "Human: <message>" or "AI: <message>"
+        return `${message.sender === "user" ? "Human" : "AI"}: ${message.text}`;
+      }
+    })
+    .join("\n");
+
+  const extractMarkedPhrase = (text) => {
+    const match = text.match(/\*\*(.*?)\*\*/);
+    console.log(`extractMarkedPhrase - match:`, match);
+    return match ? match[1] : null;
+  };
 
   const fetchFriendResponse = async (userInput) => {
     let url;
@@ -108,9 +128,12 @@ const ChatInterface = () => {
     // Determine the API endpoint and request body based on the number of friend messages
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
-      url = `https://${gptEndpoint}/stream_chat/`;
+      // use http when using localhost
+      url = `http://${gptEndpoint}/stream_chat/`;
+      //use https when using Render
+      // url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
-      body = JSON.stringify({ content: userInput });
+      body = JSON.stringify({ content: userInput, history: formattedHistory });
     } else {
       // Use the original API for the first message
       url = `https://${matchEndpoint}/find_closest_match/`;
@@ -199,54 +222,72 @@ const ChatInterface = () => {
           <List sx={{ padding: 0 }}>
             {messages.map((message, index) => (
               <React.Fragment key={index}>
-                <ListItem
-                  sx={{
-                    justifyContent:
-                      message.sender === "user" ? "flex-end" : "flex-start",
-                  }}
-                >
-                  <Paper
-                    elevation={3}
+                {message.sender === "friend" &&
+                message.details &&
+                message.details.AI_responses ? (
+                  message.details.AI_responses.map((response, idx) => (
+                    <React.Fragment key={idx}>
+                      <ListItem
+                        sx={{
+                          justifyContent: "flex-start",
+                        }}
+                      >
+                        <Paper
+                          elevation={3}
+                          sx={{
+                            padding: "10px",
+                            maxWidth: "75%",
+                            backgroundColor: "#fff",
+                            marginLeft: 0,
+                            marginRight: "auto",
+                          }}
+                        >
+                          <Typography variant="body1">{response}</Typography>
+                        </Paper>
+                      </ListItem>
+                      <ListItem sx={{ justifyContent: "flex-start" }}>
+                        <Button
+                          variant="contained"
+                          color="secondary"
+                          onClick={() =>
+                            handleMethodToSidebar(message.details.Methods[idx])
+                          }
+                        >
+                          Add {initialFriendDetails?.Methods[idx]} to Custom
+                          Journey
+                        </Button>
+                      </ListItem>
+                    </React.Fragment>
+                  ))
+                ) : (
+                  <ListItem
                     sx={{
-                      padding: "10px",
-                      maxWidth: "75%",
-                      width: "75%",
-                      backgroundColor:
-                        message.sender === "user" ? "#e0f7fa" : "#fff",
-                      marginLeft: message.sender === "user" ? "auto" : 0,
-                      marginRight: message.sender === "friend" ? "auto" : 0,
+                      justifyContent:
+                        message.sender === "user" ? "flex-end" : "flex-start",
                     }}
                   >
-                    {message.sender === "friend" ? (
-                      message.details && message.details.AI_responses ? (
-                        message.details.AI_responses.map((response, idx) => (
-                          <React.Fragment key={idx}>
-                            <Typography variant="body1">{response}</Typography>
-                            {idx < message.details.AI_responses.length - 1 && (
-                              <br />
-                            )}
-                          </React.Fragment>
-                        ))
-                      ) : (
-                        <Typography
-                          variant="body1"
-                          dangerouslySetInnerHTML={{
-                            __html: DOMPurify.sanitize(marked(message.text)),
-                          }}
-                        />
-                      )
-                    ) : (
+                    <Paper
+                      elevation={3}
+                      sx={{
+                        padding: "10px",
+                        maxWidth: "75%",
+                        width: "75%",
+                        backgroundColor:
+                          message.sender === "user" ? "#e0f7fa" : "#fff",
+                        marginLeft: message.sender === "user" ? "auto" : 0,
+                        marginRight: message.sender === "friend" ? "auto" : 0,
+                      }}
+                    >
                       <Typography
                         variant="body1"
-                        sx={{ p: 0 }}
                         dangerouslySetInnerHTML={{
                           __html: DOMPurify.sanitize(marked(message.text)),
                         }}
                       />
-                    )}
-                  </Paper>
-                </ListItem>
-                {message.sender === "friend" &&
+                    </Paper>
+                  </ListItem>
+                )}
+                {/* {message.sender === "friend" &&
                   message.details &&
                   messages
                     .filter((msg) => msg.sender === "friend")
@@ -257,10 +298,33 @@ const ChatInterface = () => {
                         color="secondary"
                         onClick={handleCreateJourneyClick}
                       >
-                        Create Custom Journey from Answer
+                        Add Method to Custom Journey
                       </Button>
                     </ListItem>
-                  )}
+                  )} */}
+
+                {message.sender === "friend" &&
+                message.text.includes(
+                  "As per your request for an alternative"
+                ) ? (
+                  <React.Fragment>
+                    <ListItem sx={{ justifyContent: "flex-start" }}>
+                      <Button
+                        variant="contained"
+                        color="secondary"
+                        onClick={() => {
+                          const phrase = extractMarkedPhrase(message.text);
+                          if (phrase) {
+                            handleMethodToSidebar(phrase);
+                          }
+                        }}
+                      >
+                        Add {extractMarkedPhrase(message.text)} to Custom
+                        Journey
+                      </Button>
+                    </ListItem>
+                  </React.Fragment>
+                ) : null}
               </React.Fragment>
             ))}
             {/* Display the friend message chunks if they exist */}
