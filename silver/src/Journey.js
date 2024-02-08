@@ -263,8 +263,9 @@ const Journey = () => {
                     color="warning"
                     endIcon={<PlayArrowIcon />}
                     sx={{ mt: 1 }}
+                    onClick={() => window.open(methodDetail["Video"], "_blank")}
                   >
-                    Step by Step
+                    Step by Step Video
                   </Button>
                 </Box>
 
@@ -365,20 +366,31 @@ const Journey = () => {
                     p: 2,
                   }}
                 >
-                  {methodDetail["Templates"]
-                    ? methodDetail["Templates"]
+                  {methodDetail["Template Images"] &&
+                  methodDetail["Template Links"]
+                    ? methodDetail["Template Images"]
                         .split("\n")
                         .map((template, idx) => {
                           const imageUrl = template
                             .replace(/^\d+\)\s/, "")
                             .trim();
+                          const linkUrl = methodDetail["Template Links"]
+                            .split("\n")
+                            [idx].replace(/^\d+\)\s/, "")
+                            .trim();
                           return (
-                            <img
+                            <a
                               key={idx}
-                              src={imageUrl}
-                              alt={`Template ${idx + 1}`}
-                              style={{ width: "100px", height: "150px" }}
-                            />
+                              href={linkUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                            >
+                              <img
+                                src={imageUrl}
+                                alt={`Template ${idx + 1}`}
+                                style={{ width: "100px", height: "100px" }}
+                              />
+                            </a>
                           );
                         })
                     : null}

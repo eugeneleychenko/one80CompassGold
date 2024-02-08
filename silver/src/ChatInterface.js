@@ -12,8 +12,8 @@ import DOMPurify from "dompurify";
 import { useNavigate } from "react-router-dom";
 
 const matchEndpoint = "match-oeed.onrender.com";
-// const gptEndpoint = "gpt-upg8.onrender.com";
-const gptEndpoint = "0.0.0.0:8003";
+const gptEndpoint = "gpt-upg8.onrender.com";
+// const gptEndpoint = "0.0.0.0:8003";
 
 const ChatInterface = () => {
   const {
@@ -129,9 +129,9 @@ const ChatInterface = () => {
     if (friendMessagesCount > 1) {
       // Use the new API for subsequent messages
       // use http when using localhost
-      url = `http://${gptEndpoint}/stream_chat/`;
+      // url = `http://${gptEndpoint}/stream_chat/`;
       //use https when using Render
-      // url = `https://${gptEndpoint}/stream_chat/`;
+      url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput, history: formattedHistory });
     } else {
@@ -303,28 +303,35 @@ const ChatInterface = () => {
                     </ListItem>
                   )} */}
 
-                {message.sender === "friend" &&
-                message.text.includes(
-                  "As per your request for an alternative"
-                ) ? (
+                {message.sender === "friend" && message.text.includes("**") && (
                   <React.Fragment>
-                    <ListItem sx={{ justifyContent: "flex-start" }}>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => {
-                          const phrase = extractMarkedPhrase(message.text);
-                          if (phrase) {
-                            handleMethodToSidebar(phrase);
-                          }
-                        }}
-                      >
-                        Add {extractMarkedPhrase(message.text)} to Custom
-                        Journey
-                      </Button>
-                    </ListItem>
+                    {[...new Set(message.text.match(/\*\*(.*?)\*\*/g))].map(
+                      (markedText, idx) => {
+                        const phrase = extractMarkedPhrase(markedText);
+                        return (
+                          <ListItem
+                            key={idx}
+                            sx={{
+                              justifyContent: "flex-start",
+                              display: "flex",
+                              flexDirection: "row",
+                              flexWrap: "wrap",
+                              gap: 1, // This adds space between buttons
+                            }}
+                          >
+                            <Button
+                              variant="contained"
+                              color="secondary"
+                              onClick={() => handleMethodToSidebar(phrase)}
+                            >
+                              Add {phrase} to Custom Journey
+                            </Button>
+                          </ListItem>
+                        );
+                      }
+                    )}
                   </React.Fragment>
-                ) : null}
+                )}
               </React.Fragment>
             ))}
             {/* Display the friend message chunks if they exist */}
