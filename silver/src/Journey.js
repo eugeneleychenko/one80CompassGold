@@ -75,14 +75,17 @@ const Journey = () => {
       const searchParams = new URLSearchParams(location.search);
       const methods = searchParams.getAll("method");
       const userInput = searchParams.get("firstUserInput");
-      console.log("1st User Input:", userInput); //
-      console.log("URL methods:", methods); // Added console log to see the methods in the URL
+      console.log("1st User Input:", userInput);
+      console.log("URL methods:", methods);
       setFirstUserInput(userInput);
-      const filteredData = methodsData.filter((item) =>
-        methods.includes(item.Uniques)
-      );
-      // Update the state with the filtered data
-      setSelectedMethod(filteredData); // Assuming you have a state setter function like this
+
+      // Create a new array that will hold the methods in the order they appear in the URL
+      const orderedFilteredData = methods
+        .map((method) => methodsData.find((item) => item.Uniques === method))
+        .filter(Boolean); // The filter(Boolean) part will remove any undefined entries in case a method is not found
+
+      // Update the state with the ordered filtered data
+      setSelectedMethod(orderedFilteredData);
     };
 
     if (methodsData.length > 0) {
