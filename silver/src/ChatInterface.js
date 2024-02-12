@@ -13,7 +13,7 @@ import { useNavigate } from "react-router-dom";
 
 const matchEndpoint = "match-oeed.onrender.com";
 const gptEndpoint = "gpt-upg8.onrender.com";
-//const gptEndpoint = "0.0.0.0:8003";
+// const gptEndpoint = "0.0.0.0:8003";
 
 const ChatInterface = () => {
   const {
@@ -131,7 +131,7 @@ const ChatInterface = () => {
       // use http when using localhost
       // url = `http://${gptEndpoint}/stream_chat/`;
       //use https when using Render
-       url = `https://${gptEndpoint}/stream_chat/`;
+      url = `https://${gptEndpoint}/stream_chat/`;
       headers = { "Content-Type": "application/json" };
       body = JSON.stringify({ content: userInput, history: formattedHistory });
     } else {
@@ -303,28 +303,65 @@ const ChatInterface = () => {
                     </ListItem>
                   )} */}
 
-                {message.sender === "friend" &&
-                message.text.includes(
-                  "As per your request for an alternative"
-                ) ? (
+                {message.sender === "friend" && message.text.includes("**") && (
                   <React.Fragment>
-                    <ListItem sx={{ justifyContent: "flex-start" }}>
-                      <Button
-                        variant="contained"
-                        color="secondary"
-                        onClick={() => {
-                          const phrase = extractMarkedPhrase(message.text);
-                          if (phrase) {
-                            handleMethodToSidebar(phrase);
-                          }
-                        }}
-                      >
-                        Add {extractMarkedPhrase(message.text)} to Custom
-                        Journey
-                      </Button>
-                    </ListItem>
+                    {[...new Set(message.text.match(/\*\*(.*?)\*\*/g))].map(
+                      (markedText, idx) => {
+                        const phrase = extractMarkedPhrase(markedText);
+                        // Define the list of specific words to check against
+                        const specificWords = [
+                          "Journaling",
+                          "Rose, Thorn, Bud",
+                          "Alternative Worlds",
+                          "Interviewing",
+                          "Abstraction Laddering",
+                          "Visualize Vote",
+                          "Round Robin",
+                          "Critique",
+                          "Storyboarding",
+                          "Video Scenario",
+                          "Affinity Clustering",
+                          "Concept Poster",
+                          "Problem Tree Analysis",
+                          "Statement Starters",
+                          "Cover Story Mock-up",
+                          "Importance/Difficulty Matrix",
+                          "Thumbnail Sketching",
+                          "Buy a Feature",
+                          "Creative Matrix",
+                          "Walk-a-Mile Immersion",
+                          "What’s on Your Radar",
+                          "Survey",
+                          "Schematic Diagramming",
+                        ];
+                        // Check if the phrase is one of the specific words
+                        if (specificWords.includes(phrase)) {
+                          return (
+                            <ListItem
+                              key={idx}
+                              sx={{
+                                justifyContent: "flex-start",
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                gap: 1, // This adds space between buttons
+                              }}
+                            >
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() => handleMethodToSidebar(phrase)}
+                              >
+                                Add {phrase} to Custom Journey
+                              </Button>
+                            </ListItem>
+                          );
+                        }
+                        return null; // Return null if the phrase is not in the list
+                      }
+                    )}
                   </React.Fragment>
-                ) : null}
+                )}
               </React.Fragment>
             ))}
             {/* Display the friend message chunks if they exist */}

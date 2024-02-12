@@ -311,7 +311,7 @@ const Journey = () => {
                   position: "sticky",
                   right: "40px",
                   // top: "150px",
-                  width: "250px",
+                  width: "400px",
                   bgcolor: "black",
                   color: "white",
                   borderRadius: "10px",
