@@ -308,26 +308,56 @@ const ChatInterface = () => {
                     {[...new Set(message.text.match(/\*\*(.*?)\*\*/g))].map(
                       (markedText, idx) => {
                         const phrase = extractMarkedPhrase(markedText);
-                        return (
-                          <ListItem
-                            key={idx}
-                            sx={{
-                              justifyContent: "flex-start",
-                              display: "flex",
-                              flexDirection: "row",
-                              flexWrap: "wrap",
-                              gap: 1, // This adds space between buttons
-                            }}
-                          >
-                            <Button
-                              variant="contained"
-                              color="secondary"
-                              onClick={() => handleMethodToSidebar(phrase)}
+                        // Define the list of specific words to check against
+                        const specificWords = [
+                          "Journaling",
+                          "Rose, Thorn, Bud",
+                          "Alternative Worlds",
+                          "Interviewing",
+                          "Abstraction Laddering",
+                          "Visualize Vote",
+                          "Round Robin",
+                          "Critique",
+                          "Storyboarding",
+                          "Video Scenario",
+                          "Affinity Clustering",
+                          "Concept Poster",
+                          "Problem Tree Analysis",
+                          "Statement Starters",
+                          "Cover Story Mock-up",
+                          "Importance/Difficulty Matrix",
+                          "Thumbnail Sketching",
+                          "Buy a Feature",
+                          "Creative Matrix",
+                          "Walk-a-Mile Immersion",
+                          "What’s on Your Radar",
+                          "Survey",
+                          "Schematic Diagramming",
+                        ];
+                        // Check if the phrase is one of the specific words
+                        if (specificWords.includes(phrase)) {
+                          return (
+                            <ListItem
+                              key={idx}
+                              sx={{
+                                justifyContent: "flex-start",
+                                display: "flex",
+                                flexDirection: "row",
+                                flexWrap: "wrap",
+                                gap: 1, // This adds space between buttons
+                              }}
                             >
-                              Add {phrase} to Custom Journey
-                            </Button>
-                          </ListItem>
-                        );
+                              <Button
+                                variant="contained"
+                                color="secondary"
+                                onClick={() => handleMethodToSidebar(phrase)}
+                              >
+                                Add {phrase} to Custom Journey
+                              </Button>
+                            </ListItem>
+                          );
+                        }
+                        return null; // Return null if the phrase is not in the list
                       }
                     )}
                   </React.Fragment>

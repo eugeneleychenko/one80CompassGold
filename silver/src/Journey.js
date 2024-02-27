@@ -17,6 +17,12 @@ import { useNavigate } from "react-router-dom";
 import ChatContext from "./ChatContext";
 import { ConnectingAirportsOutlined } from "@mui/icons-material";
 
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
+
 const style = {
   fontFamily: "'Source Sans 3', sans-serif",
 };
@@ -75,14 +81,17 @@ const Journey = () => {
       const searchParams = new URLSearchParams(location.search);
       const methods = searchParams.getAll("method");
       const userInput = searchParams.get("firstUserInput");
-      console.log("1st User Input:", userInput); //
-      console.log("URL methods:", methods); // Added console log to see the methods in the URL
+      console.log("1st User Input:", userInput);
+      console.log("URL methods:", methods);
       setFirstUserInput(userInput);
-      const filteredData = methodsData.filter((item) =>
-        methods.includes(item.Uniques)
-      );
-      // Update the state with the filtered data
-      setSelectedMethod(filteredData); // Assuming you have a state setter function like this
+
+      // Create a new array that will hold the methods in the order they appear in the URL
+      const orderedFilteredData = methods
+        .map((method) => methodsData.find((item) => item.Uniques === method))
+        .filter(Boolean); // The filter(Boolean) part will remove any undefined entries in case a method is not found
+
+      // Update the state with the ordered filtered data
+      setSelectedMethod(orderedFilteredData);
     };
 
     if (methodsData.length > 0) {
@@ -103,6 +112,19 @@ const Journey = () => {
         block: "start",
       });
     }
+  };
+
+  const [openPdfModal, setOpenPdfModal] = useState(false);
+  const [pdfUrl, setPdfUrl] = useState("");
+
+  const handleOpenPdfModal = (pdfUrl) => {
+    setPdfUrl(pdfUrl);
+    console.log("pdfURL", pdfUrl);
+    setOpenPdfModal(true);
+  };
+
+  const handleClosePdfModal = () => {
+    setOpenPdfModal(false);
   };
 
   return (
@@ -280,9 +302,9 @@ const Journey = () => {
                   }}
                 >
                   <Typography variant="h5" sx={{ pl: "330px" }}>
-                    Examples
+                    Additional Resources
                   </Typography>
-                  {methodDetail["Examples"]
+                  {/* {methodDetail["Examples"]
                     ? methodDetail["Examples"]
                         .split("\n\n")
                         .map((example, idx) => (
@@ -298,17 +320,77 @@ const Journey = () => {
                             {example}
                           </Typography>
                         ))
-                    : null}
+                    : null} */}
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
+                      mt: 2,
+                    }}
+                  >
+                    {methodDetail["Additional Resources Intro"] && (
+                      <Typography
+                        sx={{
+                          textAlign: "center",
+                          pt: "20px",
+                        }}
+                      >
+                        {methodDetail["Additional Resources Intro"]}
+                      </Typography>
+                    )}
+
+                    {/* Displaying the Additional Resources Image */}
+                    {methodDetail["Additional Resources Image"] && (
+                      <img
+                        src={methodDetail["Additional Resources Image"]}
+                        alt="Additional Resource"
+                        style={{
+                          cursor: "pointer",
+                          marginTop: "20px",
+                          width: "240px",
+                        }} // Make it look clickable and set width to 120px
+                        onClick={() =>
+                          handleOpenPdfModal(
+                            methodDetail["Additional Resources PDF"]
+                          )
+                        }
+                      />
+                    )}
+
+                    <Dialog
+                      open={openPdfModal}
+                      onClose={handleClosePdfModal}
+                      aria-labelledby="pdf-viewer-title"
+                      fullWidth={true}
+                      maxWidth="md" // Adjust size as needed
+                    >
+                      <DialogTitle id="pdf-viewer-title">
+                        PDF Viewer
+                      </DialogTitle>
+                      <DialogContent>
+                        <iframe
+                          src={pdfUrl}
+                          title="PDF Viewer"
+                          width="100%"
+                          height="500px" // Adjust height as needed
+                          style={{ border: "none" }}
+                        ></iframe>
+                      </DialogContent>
+                      <DialogActions>
+                        <Button onClick={handleClosePdfModal}>Close</Button>
+                      </DialogActions>
+                    </Dialog>
+                  </Box>
                 </Box>
               </div>
-
               <Box
                 className="method-details"
                 sx={{
                   position: "sticky",
                   right: "40px",
                   // top: "150px",
-                  width: "250px",
+                  width: "400px",
                   bgcolor: "black",
                   color: "white",
                   borderRadius: "10px",
