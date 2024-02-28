@@ -46,6 +46,7 @@ const ChatInterface = () => {
   useEffect(() => {
     console.log("Messages:", messages);
     const lastMessage = messages[messages.length - 1];
+
     if (lastMessage && lastMessage.sender === "user") {
       fetchFriendResponse(lastMessage.text);
     }
@@ -75,6 +76,23 @@ const ChatInterface = () => {
     }
   }, [messages, hasUserSentFirstMessage, setFirstUserInput]);
 
+  useEffect(() => {
+    if (messages.length > 0) {
+      let messageToSend = messages[messages.length - 1]; // Default to the last message
+      // Check if messages.length is 3 and modify the message accordingly
+      if (messages.length === 3) {
+        const thirdMessage = messages[2]; // Assuming messages are 0-indexed
+        if (thirdMessage.details && thirdMessage.details.AI_responses) {
+          // Construct a new message object from the AI_responses
+          messageToSend = {
+            text: thirdMessage.details.AI_responses.join("\n"), // Join all AI_responses with a newline
+            sender: "friend",
+          };
+        }
+      }
+      sendMessageToGoogleSheet(messageToSend);
+    }
+  }, [messages]);
   // Saves friend response array
   useEffect(() => {
     // Find the first message from 'friend' with details and save it
@@ -110,6 +128,31 @@ const ChatInterface = () => {
       }
     })
     .join("\n");
+
+  const sendMessageToGoogleSheet = async (message) => {
+    const webhookUrl =
+      "https://hook.us1.make.com/aobq8it8anwutubg5gpp9ep8am6uaruw"; // Replace with your Make.com Webhook URL
+    const payload = {
+      timestamp: new Date().toISOString(),
+      sender: message.sender,
+      text: message.text,
+    };
+
+    try {
+      await fetch(webhookUrl, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      });
+    } catch (error) {
+      console.error(
+        "Failed to send message to Google Sheet via Make.com:",
+        error
+      );
+    }
+  };
 
   const extractMarkedPhrase = (text) => {
     const match = text.match(/\*\*(.*?)\*\*/);

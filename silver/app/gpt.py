@@ -47,7 +47,7 @@ def apply_prompt_template(content: str, history: str) -> str:
         Rose, Thorn, Bud -> Critique
         Alternative Worlds -> Round Robin
         Interviewing -> Walk-a-mile or Contextual Inquiry
-        Abstraction Laddering -> Problem Tree Analysis
+        Abstraction Ladder -> Problem Tree Analysis
         Visualize Vote -> Buy a Feature
         Round Robin -> Alternative Worlds
         Critique -> Rose, Thorn, Bud
@@ -55,7 +55,7 @@ def apply_prompt_template(content: str, history: str) -> str:
         Video Scenario -> Concept Poster or Cover Story Mock-up
         Affinity Clustering -> Why Might We
         Concept Poster -> Video Scenario or Cover Story Mock-up
-        Problem Tree Analysis -> Abstraction Laddering
+        Problem Tree Analysis -> Abstraction Ladder
         Statement Starters -> Why Might We
         Cover Story Mock-up -> Concept Poster or Video Scenario
         Importance/Difficulty Matrix -> Visualize Vote or Buy a Feature
